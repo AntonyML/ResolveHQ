@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "resolvehq",
+  "name": "aegisresolvedesk",
   "main": "worker.ts",
   "compatibility_date": "2026-08-01",
   // global_fetch_strictly_public: a fetch() to this deployment's own zone loops back to
@@ -26,7 +26,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "resolvehq",
+      "database_name": "db-aegisresolvedesk",
       "migrations_dir": "drizzle/migrations",
     },
   ],

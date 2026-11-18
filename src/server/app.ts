@@ -27,6 +27,7 @@ import { webhookEndpointRoutes } from "./webhooks/endpoints-routes";
 import { backupRoutes } from "./backups/routes";
 import { privacyRoutes } from "./privacy/routes";
 import { assistantRoutes } from "./assistant/routes";
+import { shellRoutes, fleetRoutes } from "./fleet/routes";
 
 const app = new Hono<HonoEnv>();
 
@@ -154,6 +155,11 @@ v1.route("/reports", reportRoutes);
 v1.route("/automations", automationRoutes);
 v1.route("/privacy", privacyRoutes);
 v1.route("/assistant", assistantRoutes);
+v1.route("/fleet", fleetRoutes);
+v1.route("/shell", shellRoutes);
+app.route("/api/fleet", fleetRoutes);
+app.route("/api/v1/shell", shellRoutes);
+app.route("/api/shell", shellRoutes);
 app.route("/api/v1", v1);
 // Mounted outside both /api/* and /api/v1/*: an MCP client speaks JSON-RPC, not REST,
 // and authenticates with a key carrying mcp:read.

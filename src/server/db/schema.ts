@@ -1041,3 +1041,168 @@ export const mailDlqEvents = sqliteTable(
   },
   (table) => [uniqueIndex("mail_dlq_events_reference_uidx").on(table.id)],
 );
+
+
+// --- Aegis Fleet Management & Shell Integration ---
+
+export const equipmentGroups = sqliteTable(
+  "equipment_groups",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("active"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("equipment_groups_org_idx").on(table.organizationId),
+  ],
+);
+
+export const managedUsers = sqliteTable(
+  "managed_users",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    groupId: text("group_id").references(() => equipmentGroups.id, { onDelete: "set null" }),
+    displayName: text("display_name").notNull(),
+    email: text("email"),
+    status: text("status").notNull().default("active"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("managed_users_org_idx").on(table.organizationId),
+  ],
+);
+
+export const installations = sqliteTable(
+  "installations",
+  {
+    id: text("id").primaryKey(),
+    tokenHash: text("token_hash").notNull().unique(),
+    equipmentName: text("equipment_name").notNull(),
+    sidcTarget: text("sidc_target").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+    revokedAt: text("revoked_at"),
+    shellVersion: text("shell_version").notNull(),
+    sidcVersion: text("sidc_version").notNull(),
+    lastOpenedAt: text("last_opened_at"),
+    status: text("status").notNull().default("active"),
+    organizationId: text("organization_id").references(() => organizations.id, { onDelete: "set null" }),
+    groupId: text("group_id").references(() => equipmentGroups.id, { onDelete: "set null" }),
+    assignedUserId: text("assigned_user_id").references(() => managedUsers.id, { onDelete: "set null" }),
+  },
+  (table) => [
+    index("installations_status_idx").on(table.status),
+    index("installations_org_idx").on(table.organizationId),
+  ],
+);
+
+export const cycles = sqliteTable(
+  "cycles",
+  {
+    id: text("id").primaryKey(),
+    installationId: text("installation_id")
+      .notNull()
+      .references(() => installations.id, { onDelete: "cascade" }),
+    startedAt: text("started_at").notNull(),
+    durationMonths: integer("duration_months").notNull(),
+    dueAt: text("due_at").notNull(),
+    status: text("status").notNull().default("active"),
+    createdBy: text("created_by").notNull(),
+    reason: text("reason").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("cycles_installation_idx").on(table.installationId),
+    index("cycles_due_idx").on(table.dueAt),
+  ],
+);
+
+export const enrollmentCodes = sqliteTable(
+  "enrollment_codes",
+  {
+    id: text("id").primaryKey(),
+    codeHash: text("code_hash").notNull().unique(),
+    createdAt: text("created_at").notNull(),
+    expiresAt: text("expires_at").notNull(),
+    usedAt: text("used_at"),
+    createdBy: text("created_by").notNull(),
+    organizationId: text("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
+    groupId: text("group_id").references(() => equipmentGroups.id, { onDelete: "set null" }),
+  },
+  (table) => [
+    index("enrollment_codes_expires_idx").on(table.expiresAt),
+  ],
+);
+
+export const equipmentEvents = sqliteTable(
+  "equipment_events",
+  {
+    id: text("id").primaryKey(),
+    installationId: text("installation_id").references(() => installations.id, { onDelete: "cascade" }),
+    cycleId: text("cycle_id").references(() => cycles.id, { onDelete: "set null" }),
+    openId: text("open_id"),
+    serverReceivedAt: text("server_received_at").notNull(),
+    type: text("type").notNull(),
+    actor: text("actor"),
+    shellVersion: text("shell_version"),
+    sidcVersion: text("sidc_version"),
+    windowsUser: text("windows_user"),
+    equipmentName: text("equipment_name"),
+    consentState: text("consent_state"),
+    launchResult: text("launch_result"),
+    payloadJson: text("payload_json").notNull().default("{}"),
+  },
+  (table) => [
+    index("equipment_events_inst_time_idx").on(table.installationId, table.serverReceivedAt),
+    index("equipment_events_type_time_idx").on(table.type, table.serverReceivedAt),
+  ],
+);
+
+export const termsAcceptances = sqliteTable(
+  "terms_acceptances",
+  {
+    id: text("id").primaryKey(),
+    installationId: text("installation_id")
+      .notNull()
+      .references(() => installations.id, { onDelete: "cascade" }),
+    termsVersion: text("terms_version").notNull(),
+    acceptedAt: text("accepted_at").notNull(),
+    ipAddress: text("ip_address"),
+  },
+  (table) => [
+    index("terms_acceptances_inst_idx").on(table.installationId),
+  ],
+);
+
+export const supportConfigs = sqliteTable(
+  "support_configs",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .unique()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    title: text("title").notNull().default("Soporte Remoto"),
+    responsibleArea: text("responsible_area").notNull().default("Soporte TI"),
+    email: text("email"),
+    phone: text("phone"),
+    hours: text("hours"),
+    ticketUrl: text("ticket_url"),
+    docsUrl: text("docs_url"),
+    description: text("description"),
+    temporaryNotice: text("temporary_notice"),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("support_configs_org_idx").on(table.organizationId),
+  ],
+);

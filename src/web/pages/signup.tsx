@@ -13,6 +13,7 @@ export function SignupPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const turnstileRef = useRef<TurnstileHandle>(null);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -26,59 +27,60 @@ export function SignupPage() {
       await refresh();
       navigate("/inbox");
     } catch (reason) {
-      setError(errorMessage(reason, "Workspace creation failed."));
+      setError(errorMessage(reason, "Error al crear el espacio de trabajo."));
       turnstileRef.current?.reset();
     } finally {
       setSubmitting(false);
     }
   }
+
   return (
     <AuthSurface>
       <div className="auth-heading">
-        <h1>Start with a clean queue.</h1>
-        <p>Create your workspace and invite the team when you are ready.</p>
+        <h1>Comenzá con una cola limpia.</h1>
+        <p>Creá tu espacio de trabajo e invitá a tu equipo cuando estés listo.</p>
       </div>
       <form onSubmit={submit} className="auth-form">
         <label>
-          Your name
-          <Input name="name" autoComplete="name" required />
+          Tu nombre completo
+          <Input name="name" autoComplete="name" placeholder="Antony Monge Lopez" required />
         </label>
         <label>
-          Work email
-          <Input name="email" type="email" autoComplete="email" required />
+          Correo de trabajo
+          <Input name="email" type="email" autoComplete="email" placeholder="admin@cvmeld.com" required />
         </label>
         <label>
-          Workspace name
-          <Input name="organizationName" required />
+          Nombre de la organización / empresa
+          <Input name="organizationName" placeholder="CVMeld" required />
         </label>
         <label>
-          Workspace URL
-          <Input name="organizationSlug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="northstar-labs" required />
+          URL del espacio (slug)
+          <Input name="organizationSlug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="cvmeld" required />
         </label>
         <label>
-          Password
+          Contraseña
           <Input name="password" type="password" minLength={12} autoComplete="new-password" required />
-          <small>At least 12 characters.</small>
+          <small className="auth-hint">Al menos 12 caracteres.</small>
         </label>
         <label>
-          Support email (optional)
-          <Input name="supportEmail" type="email" placeholder="support@example.com" />
-          <small>The address customers write to. You can add it later in Settings.</small>
+          Correo de soporte (opcional)
+          <Input name="supportEmail" type="email" placeholder="soporte@cvmeld.com" />
+          <small className="auth-hint">
+            La dirección donde escribirán tus clientes. Podés configurarla luego en Configuración.
+          </small>
         </label>
         <Turnstile ref={turnstileRef} />
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
-        <Button disabled={submitting} type="submit">
-          {submitting ? "Creating…" : "Create workspace"}
-          <ArrowRight size={16} />
+        {error && <p className="auth-error">{error}</p>}
+        <Button type="submit" disabled={submitting}>
+          {submitting ? "Creando espacio…" : "Crear espacio de trabajo"}
         </Button>
       </form>
-      <p className="auth-switch">
-        Already have an account? <Link to="/login">Sign in</Link>
-      </p>
+      <div className="auth-footer">
+        <span>¿Ya tenés una cuenta?</span>
+        <Link to="/login">
+          Iniciar sesión <ArrowRight size={14} />
+        </Link>
+      </div>
     </AuthSurface>
   );
 }

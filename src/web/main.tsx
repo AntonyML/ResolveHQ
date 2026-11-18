@@ -16,6 +16,7 @@ import { NotFoundPage } from "./pages/not-found";
 import { SignupPage } from "./pages/signup";
 import "./styles.css";
 
+const FleetPage = lazy(() => import("./pages/fleet").then((module) => ({ default: module.FleetPage })));
 const DashboardPage = lazy(() => import("./pages/dashboard").then((module) => ({ default: module.DashboardPage })));
 const CustomersPage = lazy(() => import("./pages/customers").then((module) => ({ default: module.CustomersPage })));
 const TeamPage = lazy(() => import("./pages/team").then((module) => ({ default: module.TeamPage })));
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           { index: true, element: <Navigate to="/inbox" replace /> },
+          { path: "/fleet", element: deferred(<FleetPage />) },
           { path: "/dashboard", element: deferred(<DashboardPage />) },
           { path: "/inbox/:ticketId?", element: <InboxPage /> },
           { path: "/tickets", element: <Navigate to="/inbox" replace /> },

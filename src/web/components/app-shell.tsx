@@ -8,6 +8,7 @@ import {
   Menu,
   Inbox,
   LogOut,
+  Monitor,
   Moon,
   Search,
   Settings,
@@ -26,16 +27,25 @@ import { useToast } from "./toast";
 import { SetupBanner } from "./setup-banner";
 import { chordPending, consumeChord, startChord } from "@/web/lib/chord";
 
-const navigation = [
-  { label: "Inbox", href: "/inbox", icon: Inbox, shortcut: "I", primary: true },
-  { label: "Dashboard", href: "/dashboard", icon: CircleGauge, shortcut: "D", primary: true },
-  { label: "Customers", href: "/customers", icon: Users, shortcut: "C", primary: true },
-  { label: "Knowledge", href: "/knowledge-base", icon: BookOpen, shortcut: "K" },
-  { label: "Reports", href: "/reports", icon: ChartNoAxesColumn, shortcut: "R" },
-  { label: "Automations", href: "/automations", icon: Workflow, shortcut: "A" },
-  { label: "Team", href: "/team", icon: Users, shortcut: "T", primary: true },
-  { label: "Settings", href: "/settings", icon: Settings, shortcut: "S" },
+const navigationWorkspace = [
+  { label: "Bandeja de entrada", href: "/inbox", icon: Inbox, shortcut: "I", primary: true },
+  { label: "Equipos y Flota", href: "/fleet", icon: Monitor, shortcut: "E", primary: true },
+  { label: "Panel operativo", href: "/dashboard", icon: CircleGauge, shortcut: "D", primary: true },
+  { label: "Clientes", href: "/customers", icon: Users, shortcut: "C", primary: true },
 ] as const;
+
+const navigationGrow = [
+  { label: "Base de conocimiento", href: "/knowledge-base", icon: BookOpen, shortcut: "K" },
+  { label: "Reportes", href: "/reports", icon: ChartNoAxesColumn, shortcut: "R" },
+  { label: "Automatizaciones", href: "/automations", icon: Workflow, shortcut: "A" },
+] as const;
+
+const navigationAdmin = [
+  { label: "Equipo", href: "/team", icon: Users, shortcut: "T", primary: true },
+  { label: "Configuración", href: "/settings", icon: Settings, shortcut: "S" },
+] as const;
+
+const navigation = [...navigationWorkspace, ...navigationGrow, ...navigationAdmin];
 
 export function AppShell() {
   const { session, logout, switchWorkspace } = useAuth();
@@ -174,7 +184,7 @@ export function AppShell() {
             <span className="rail-workspace-mark">{(session?.organization.name ?? "R").slice(0, 1)}</span>
             <span>
               <strong>{session?.organization.name}</strong>
-              <small>Switch workspace</small>
+              <small>Cambiar espacio</small>
             </span>
             <select
               aria-label="Workspace"
@@ -193,32 +203,32 @@ export function AppShell() {
             <span className="rail-workspace-mark">{(session?.organization.name ?? "R").slice(0, 1)}</span>
             <span>
               <strong>{session?.organization.name}</strong>
-              <small>Support workspace</small>
+              <small>AegisResolveDesk</small>
             </span>
           </div>
         )}
         <button className="rail-jump" type="button" onClick={() => setCommandOpen(true)}>
           <Search size={15} />
-          <span>Jump to…</span>
+          <span>Buscar…</span>
           <kbd>⌘K</kbd>
         </button>
         <nav className="rail-nav" aria-label="Primary navigation" onClick={closeRail}>
-          <div className="rail-section">Workspace</div>
-          {navigation.slice(0, 3).map(({ label, href, icon: Icon }) => (
+          <div className="rail-section">Operación</div>
+          {navigationWorkspace.map(({ label, href, icon: Icon }) => (
             <NavLink key={href} to={href} className={({ isActive }) => (isActive ? "rail-link active" : "rail-link")}>
               <Icon size={17} />
               {label}
             </NavLink>
           ))}
-          <div className="rail-section">Grow</div>
-          {navigation.slice(3, 6).map(({ label, href, icon: Icon }) => (
+          <div className="rail-section">Gestión</div>
+          {navigationGrow.map(({ label, href, icon: Icon }) => (
             <NavLink key={href} to={href} className={({ isActive }) => (isActive ? "rail-link active" : "rail-link")}>
               <Icon size={17} />
               {label}
             </NavLink>
           ))}
-          <div className="rail-section">Workspace admin</div>
-          {navigation.slice(6).map(({ label, href, icon: Icon }) => (
+          <div className="rail-section">Administración</div>
+          {navigationAdmin.map(({ label, href, icon: Icon }) => (
             <NavLink key={href} to={href} className={({ isActive }) => (isActive ? "rail-link active" : "rail-link")}>
               <Icon size={17} />
               {label}
@@ -245,7 +255,7 @@ export function AppShell() {
             {notificationsOpen && (
               <div className="rail-popover" role="menu" aria-label="Notifications">
                 <header>
-                  <strong>Notifications</strong>
+                  <strong>Notificaciones</strong>
                   <button type="button" aria-label="Close notifications" onClick={() => setNotificationsOpen(false)}>
                     <X size={14} />
                   </button>
@@ -272,7 +282,7 @@ export function AppShell() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="notifications-empty">You're all caught up.</p>
+                  <p className="notifications-empty">Todo al día.</p>
                 )}
               </div>
             )}
@@ -322,8 +332,8 @@ export function AppShell() {
                   </li>
                   <li>
                     <button type="button" role="menuitem" onClick={() => void signOut()}>
-                      <span>Sign out</span>
-                      <small>End this session on all tabs</small>
+                      <span>Cerrar sesión</span>
+                      <small>Finalizar sesión en todas las pestañas</small>
                     </button>
                   </li>
                 </ul>
@@ -377,7 +387,7 @@ export function AppShell() {
                   autoFocus
                   value={commandQuery}
                   onChange={(event) => setCommandQuery(event.target.value)}
-                  placeholder="Search pages and actions"
+                  placeholder="Buscar páginas y acciones"
                   aria-label="Search commands"
                 />
                 <button type="button" onClick={() => setCommandOpen(false)} aria-label="Close command menu">
@@ -385,7 +395,7 @@ export function AppShell() {
                 </button>
               </header>
               <div className="command-results">
-                <span>Go to</span>
+                <span>Ir a</span>
                 {filteredNavigation.map(({ label, href, icon: Icon, shortcut }) => (
                   <button
                     key={href}
@@ -401,7 +411,7 @@ export function AppShell() {
                     <kbd>G {shortcut}</kbd>
                   </button>
                 ))}
-                {!filteredNavigation.length && <p>No matching destination.</p>}
+                {!filteredNavigation.length && <p>No se encontraron resultados.</p>}
               </div>
               <footer>
                 <div>

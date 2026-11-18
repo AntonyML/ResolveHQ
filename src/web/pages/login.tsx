@@ -34,7 +34,7 @@ export function LoginPage() {
       await refresh();
       navigate(destination);
     } catch (reason) {
-      setError(errorMessage(reason, "Sign in failed."));
+      setError(errorMessage(reason, "Error al iniciar sesión."));
       turnstileRef.current?.reset();
     } finally {
       setSubmitting(false);
@@ -43,57 +43,48 @@ export function LoginPage() {
   return (
     <AuthSurface>
       <div className="auth-heading">
-        <h1>Sign in to ResolveHQ</h1>
-        <p>Continue to your team’s support workspace.</p>
+        <h1>Iniciar sesión en AegisResolveDesk</h1>
+        <p>Accedé al panel operativo y de soporte de tu equipo.</p>
       </div>
       <form onSubmit={submit} className="auth-form">
         <label>
-          Email
-          <Input name="email" type="email" autoComplete="email" required />
+          Correo electrónico
+          <Input name="email" type="email" autoComplete="email" required autoFocus />
         </label>
         <label>
-          Password
-          <Input name="password" type="password" autoComplete="current-password" minLength={12} required />
+          <span className="auth-password-label">
+            <span>Contraseña</span>
+            <Link to="/forgot-password">¿La olvidaste?</Link>
+          </span>
+          <Input name="password" type="password" autoComplete="current-password" required />
         </label>
         <Turnstile ref={turnstileRef} />
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
-        <Button disabled={submitting} type="submit">
-          {submitting ? "Signing in…" : "Sign in"}
-          <ArrowRight size={16} />
+        {error && <p className="auth-error">{error}</p>}
+        <Button type="submit" disabled={submitting}>
+          {submitting ? "Iniciando sesión…" : "Iniciar sesión"}
         </Button>
-        <Link className="auth-form-link" to="/forgot-password">
-          Forgot password?
-        </Link>
       </form>
-      <p className="auth-switch">
-        New workspace? <Link to="/signup">Create an account</Link>
-      </p>
+      <div className="auth-footer">
+        <span>¿Primera vez en AegisResolveDesk?</span>
+        <Link to="/signup">
+          Crear espacio de trabajo <ArrowRight size={14} />
+        </Link>
+      </div>
     </AuthSurface>
   );
 }
 
 export function AuthSurface({ children }: { children: React.ReactNode }) {
   return (
-    <main className="auth-surface">
-      <section className="auth-panel">
-        <Link className="auth-brand" to="/">
-          ResolveHQ
-        </Link>
+    <div className="auth-surface">
+      <header className="auth-header">
+        <span className="auth-brand">
+          <span className="auth-logo">A</span>
+          <strong>AegisResolveDesk</strong>
+        </span>
         <DeploymentStatus />
-        {children}
-      </section>
-      <aside className="auth-aside" aria-hidden="true">
-        <span>Support operations, without the overhead.</span>
-        <ol>
-          <li>Prioritize the queue</li>
-          <li>Keep customer context close</li>
-          <li>Resolve work together</li>
-        </ol>
-      </aside>
-    </main>
+      </header>
+      <main className="auth-card">{children}</main>
+    </div>
   );
 }
